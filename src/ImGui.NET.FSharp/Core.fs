@@ -13,7 +13,7 @@ type IGuiRunner =
     abstract Close: unit -> unit
     abstract UpdateBuilder: ImGuiBuilder -> unit
 
-and ImGuiBuilder = IGuiRunner -> unit
+and ImGuiBuilder = unit -> unit
 
 type private ImGuiRunner() = 
     static let mutable instance = new ImGuiRunner()
@@ -27,15 +27,15 @@ type private ImGuiRunner() =
     let mutable cl = Unchecked.defaultof<CommandList>
     let mutable imguiRenderer = Unchecked.defaultof<ImGuiRenderer>
 
-    let mutable guiBuilder:ImGuiBuilder = fun (gui:IGuiRunner) -> () // empty builder
+    let mutable guiBuilder:ImGuiBuilder = fun () -> () // empty builder
 
     let actionQueue = ConcurrentQueue<_>()
     let actionQueueLock = Object()
 
-    member private x.Start(initialGuiBuilder, postInit) = 
+    member private x.Start(windowName, initialGuiBuilder, postInit) = 
 
         VeldridStartup.CreateWindowAndGraphicsDevice(
-            new WindowCreateInfo(50, 50, 960, 540, WindowState.Normal, "ImGui Test"),
+            new WindowCreateInfo(50, 50, 960, 540, WindowState.Normal, windowName),
             new GraphicsDeviceOptions(true, System.Nullable(), true, ResourceBindingModel.Improved, true, true), // sync to vertical important here for CPU usage
             &window, &gd 
         )
@@ -70,7 +70,7 @@ type private ImGuiRunner() =
 
             imguiRenderer.Update(2f / 60f, snapshot) // 30 fps is enough
 
-            guiBuilder(x :> IGuiRunner)               
+            guiBuilder()               
 
             if window.Exists then            
                 cl.Begin()
@@ -81,25 +81,33 @@ type private ImGuiRunner() =
                 gd.SubmitCommands(cl)
                 gd.SwapBuffers(gd.MainSwapchain)
 
-    static member Start(guiBuilder:ImGuiBuilder) = 
+    static member Start(windowName, guiBuilder:ImGuiBuilder) = 
         if not running then
             instance <- new ImGuiRunner()
 
             use waiter = new ManualResetEventSlim()
             Thread(fun () -> 
                 running <- true
-                instance.Start(guiBuilder, waiter.Set) |> ignore
+                instance.Start(windowName, guiBuilder, waiter.Set) |> ignore
                 running <- false
             ).Start()
             waiter.Wait()
             
         instance :> IGuiRunner
 
+    static member UpdateBuilder(builder) = 
+        instance.UpdateBuilder(builder)
+
+    static member Close() = 
+        instance.Close()
+
     member private x.ScheduleAction(action) = 
         actionQueue.Enqueue(action)
 
     member private x.UpdateBuilder(builder) = 
         guiBuilder <- builder
+
+    member private x.Close() = window.Close()
 
     interface IGuiRunner with 
         member _.Close() = window.Close()
@@ -116,6 +124,6 @@ type private ImGuiRunner() =
 
             started <- false
 
-let startGui(guiBuilder) = ImGuiRunner.Start(guiBuilder)
-let updateGui (newGui: ImGuiBuilder) (g: IGuiRunner) = g.UpdateBuilder(newGui)
-let closeGui (g: IGuiRunner) = g.Close()
+let startGui (windowName, guiBuilder) = ImGuiRunner.Start(windowName, guiBuilder)
+let updateGui (newGui: ImGuiBuilder) = ImGuiRunner.UpdateBuilder(newGui)
+let closeGui () = ImGuiRunner.Close()

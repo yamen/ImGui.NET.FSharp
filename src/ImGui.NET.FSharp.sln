@@ -3,9 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31019.194
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "ImGui.NET.FSharp", "ImGui.NET.FSharp\ImGui.NET.FSharp.fsproj", "{C2D35213-D526-4B3C-8FF1-D09A0B0AF822}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "ImGui.NET.FSharp", "ImGui.NET.FSharp\ImGui.NET.FSharp.fsproj", "{C2D35213-D526-4B3C-8FF1-D09A0B0AF822}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "ImGui.NET.FSharp.Sample", "ImGui.NET.FSharp.Sample\ImGui.NET.FSharp.Sample.fsproj", "{9F8DD968-243C-44AA-A463-5E713CB2940B}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "ImGui.NET.FSharp.Sample", "ImGui.NET.FSharp.Sample\ImGui.NET.FSharp.Sample.fsproj", "{9F8DD968-243C-44AA-A463-5E713CB2940B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{55C40425-93F5-4598-AB59-8232FB072F74}"
+	ProjectSection(SolutionItems) = preProject
+		..\.gitignore = ..\.gitignore
+		..\README.md = ..\README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

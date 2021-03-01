@@ -6,46 +6,46 @@ open System.Numerics
 
 [<RequireQualifiedAccess>]
 module Gui = 
-    let app (builder:#seq<ImGuiBuilder>) = fun (g:IGuiRunner) ->
-        builder |> Seq.iter (fun i -> i(g))
+    let app (builder:#seq<ImGuiBuilder>) = fun () ->
+        builder |> Seq.iter (fun i -> i())
 
-    let window label (builder:#seq<ImGuiBuilder>) = fun (g:IGuiRunner) ->
+    let window label (builder:#seq<ImGuiBuilder>) = fun () ->
         if (ImGui.Begin(label)) then
-            builder |> Seq.iter (fun i -> i(g))
+            builder |> Seq.iter (fun i -> i())
             ImGui.End()
 
-    let button label onClick = fun (g:IGuiRunner) -> 
-        if (ImGui.Button(label)) then onClick g
+    let button label onClick = fun () -> 
+        if (ImGui.Button(label)) then onClick()
 
-    let checkbox label (var: bool ref) onClick = fun (g:IGuiRunner) ->
+    let checkbox label (var: bool ref) onClick = fun () ->
         if (ImGui.Checkbox(label, &var.contents)) then
-            onClick g var.Value
+            onClick var.Value
 
-    let text value = fun (g:IGuiRunner) -> 
+    let text value = fun () -> 
         ImGui.Text(value)
 
-    let coloredText (color:System.Drawing.Color) value = fun (g:IGuiRunner) -> 
+    let coloredText (color:System.Drawing.Color) value = fun () -> 
         ImGui.TextColored(Styles.colorToVec4 color, value)
 
-    let radioboxes (values: #seq<string * int>) (var: int ref) onClick onChange = fun (g:IGuiRunner) -> 
+    let radioboxes (values: #seq<string * int>) (var: int ref) onClick onChange = fun () -> 
         let oldValue = var.Value
 
         for label, value in values do
             if ImGui.RadioButton(label, &var.contents, value) then
-                onClick g var.Value
+                onClick var.Value
 
         if var.Value <> oldValue then
-            onChange g var.Value
+            onChange var.Value
 
-    let sameLine (builder:#seq<ImGuiBuilder>) = fun (g:IGuiRunner) ->
+    let sameLine (builder:#seq<ImGuiBuilder>) = fun () ->
         let items = builder |> Array.ofSeq
         let lastItem = items |> Array.last
 
         for i = 0 to items.Length - 2 do
-            items.[i](g)
+            items.[i]()
             ImGui.SameLine()
 
-        lastItem(g)
+        lastItem()
 
     let private statusBarFlags =
         ImGuiWindowFlags.NoMove |||
@@ -54,7 +54,7 @@ module Gui =
         ImGuiWindowFlags.NoSavedSettings |||
         ImGuiWindowFlags.NoTitleBar
 
-    let statusBar label (statusBarItems:#seq<ImGuiBuilder>) = fun (g:IGuiRunner) -> 
+    let statusBar label (statusBarItems:#seq<ImGuiBuilder>) = fun () -> 
         let height = ImGui.GetTextLineHeightWithSpacing() + (ImGui.GetStyle().WindowPadding.Y * 2f)        
         ImGui.SetNextWindowPos(Vector2(0f, ImGui.GetIO().DisplaySize.Y - height))
         ImGui.SetNextWindowSize(Vector2(ImGui.GetIO().DisplaySize.X, 0f))
@@ -62,14 +62,14 @@ module Gui =
         ImGui.PushStyleVar(ImGuiStyleVar.WindowRounding, 0f)
         ImGui.PushStyleVar(ImGuiStyleVar.WindowBorderSize, 0f)
         if (ImGui.Begin(label, statusBarFlags)) then
-            sameLine statusBarItems g
+            sameLine(statusBarItems)()
             ImGui.End()                        
         ImGui.PopStyleVar()
 
 [<AutoOpen>]
 module Operators = 
     let inline (++) (f1:ImGuiBuilder) (f2:ImGuiBuilder) = 
-        fun (g:IGuiRunner) -> 
-            f1(g)
+        fun () -> 
+            f1()
             ImGui.SameLine()
-            f2(g)
+            f2()

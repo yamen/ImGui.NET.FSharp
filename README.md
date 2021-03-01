@@ -1,14 +1,12 @@
-﻿#r "nuget:ImGUI.Net"
-#r "nuget:Veldrid"
-#r "nuget:Veldrid.ImGui"
-#r "nuget:Veldrid.StartupUtilities"
+# ImGui.NET FSharp Wrapper
 
-#I "../ImGui.Net.FSharp/bin/Debug/net5.0"
-#r "ImGui.NET.FSharp.dll"
+Build rapid GUI applications in FSharp using the excellent [Dear ImGui](https://github.com/ocornut/imgui) via the [ImGui.NET](https://github.com/mellinoe/ImGui.NET) wrapper.
 
-open ImGuiNET
-open ImGuiNET.FSharp
+## How?
 
+How about a quick little GUI window from your FSI session?
+
+```fsharp
 let commonStatusBar() = 
     Gui.statusBar "Status Bar" [
         Gui.button "Quit" closeGui
@@ -31,7 +29,13 @@ let page() =
     ]()
 
 startGui("Demo", page)
+```
 
+![Demo 1](demo1.gif)
+
+How about hot reloading some changes as you rapidly iterate?
+
+```fsharp
 let newPage()  = 
     Gui.app [
         Gui.window "Updated!" [
@@ -42,4 +46,10 @@ let newPage()  =
     ]()
 
 updateGui newPage
-updateGui page
+```
+
+And boom!
+
+![Demo 2](demo2.gif)
+
+A more complete demo program is being developed in the [Sample Project](src/ImGui.NET.FSharp.Sample/Program.fs).
