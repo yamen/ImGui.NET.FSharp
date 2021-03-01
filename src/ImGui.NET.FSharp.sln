@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31019.194
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "ImGui.NET.FSharp", "ImGui.NET.FSharp\ImGui.NET.FSharp.fsproj", "{C2D35213-D526-4B3C-8FF1-D09A0B0AF822}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "ImGui.NET.FSharp.Sample", "ImGui.NET.FSharp.Sample\ImGui.NET.FSharp.Sample.fsproj", "{9F8DD968-243C-44AA-A463-5E713CB2940B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C2D35213-D526-4B3C-8FF1-D09A0B0AF822}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C2D35213-D526-4B3C-8FF1-D09A0B0AF822}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C2D35213-D526-4B3C-8FF1-D09A0B0AF822}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C2D35213-D526-4B3C-8FF1-D09A0B0AF822}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9F8DD968-243C-44AA-A463-5E713CB2940B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9F8DD968-243C-44AA-A463-5E713CB2940B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9F8DD968-243C-44AA-A463-5E713CB2940B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9F8DD968-243C-44AA-A463-5E713CB2940B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {4AC15E9B-6539-4899-B06E-A797910CA3B9}
+	EndGlobalSection
+EndGlobal
