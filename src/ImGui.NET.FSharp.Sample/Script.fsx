@@ -30,7 +30,7 @@ let page() =
         commonStatusBar
     ]()
 
-startGui("Demo", page)
+startOrUpdateGuiWith "Demo" page
 
 let newPage()  = 
     Gui.app [
@@ -41,5 +41,4 @@ let newPage()  =
         commonStatusBar
     ]()
 
-updateGui newPage
-updateGui page
+setGuiBuilder newPage

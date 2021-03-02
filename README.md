@@ -28,7 +28,7 @@ let page() =
         commonStatusBar
     ]()
 
-startGui("Demo", page)
+startOrUpdateGuiWith "Demo" page
 ```
 
 ![Demo 1](demo1.gif)
@@ -45,7 +45,7 @@ let newPage()  =
         commonStatusBar
     ]()
 
-updateGui newPage
+setGuiBuilder newPage
 ```
 
 And boom!
