@@ -27,6 +27,10 @@ module Gui =
     let coloredText (color:System.Drawing.Color) value = fun () -> 
         ImGui.TextColored(Styles.colorToVec4 color, value)
 
+    let alignText (f) = fun () ->
+        ImGui.AlignTextToFramePadding()
+        f()
+
     let radioboxes (values: #seq<string * int>) (var: int ref) onClick onChange = fun () -> 
         let oldValue = var.Value
 

@@ -29,13 +29,13 @@ type private ImGuiRunner() =
     let mutable guiBuilder:ImGuiBuilder = fun () -> () // empty builder
 
     let actionQueue = ConcurrentQueue<_>()
-    let actionQueueLock = Object()
 
-    member private x.Start(windowName, initialGuiBuilder, postInit) = 
+    member private x.Start(windowName, postInit) = 
 
         VeldridStartup.CreateWindowAndGraphicsDevice(
             new WindowCreateInfo(50, 50, 960, 540, WindowState.Normal, windowName),
-            new GraphicsDeviceOptions(true, System.Nullable(), true, ResourceBindingModel.Improved, true, true), // sync to vertical important here for CPU usage
+            // sync to vertical important here for CPU usage
+            new GraphicsDeviceOptions(true, System.Nullable(), true, ResourceBindingModel.Improved, true, true),
             &window, &gd 
         )
 
@@ -48,22 +48,16 @@ type private ImGuiRunner() =
             gd.MainSwapchain.Resize((uint)window.Width, (uint)window.Height);
         )
 
-        window.add_Closed(fun () -> (x :> IDisposable).Dispose())
+        window.add_Closed(fun () -> x.Close())
 
-        x.UpdateBuilder(initialGuiBuilder)
         started <- true
         postInit()
         
         while window.Exists do
-            if actionQueue.Count > 0 then
-                Monitor.Enter(actionQueueLock)
-                try
-                    while actionQueue.Count > 0 do
-                        match actionQueue.TryDequeue() with
-                        | true, action -> action()
-                        | false, _ -> ()
-                finally
-                    Monitor.Exit(actionQueueLock)
+            while actionQueue.Count > 0 do
+                match actionQueue.TryDequeue() with
+                | true, action -> action()
+                | false, _ -> ()
 
             let snapshot = window.PumpEvents()
 
@@ -97,17 +91,19 @@ type private ImGuiRunner() =
 
         started <- false
 
-    static member Start(windowName, guiBuilder:ImGuiBuilder) = 
+    static member EnsureRunningWith(windowName, guiBuilder) = 
         if not running then
             instance <- new ImGuiRunner()
 
             use waiter = new ManualResetEventSlim()
             Thread(fun () -> 
                 running <- true
-                instance.Start(windowName, guiBuilder, waiter.Set) |> ignore
+                instance.Start(windowName, waiter.Set) |> ignore
                 running <- false
             ).Start()
             waiter.Wait()
+
+        instance.UpdateBuilder(guiBuilder)
             
         instance :> IGuiRunner
 
@@ -120,8 +116,9 @@ type private ImGuiRunner() =
         member x.Invoke(action) = x.ScheduleAction(action)
         member x.Dispose() = x.Close()
 
-let startGui (windowName, guiBuilder) = ImGuiRunner.Start(windowName, guiBuilder)
-let updateGui (newGui: ImGuiBuilder) = ImGuiRunner.UpdateBuilder(newGui)
+let startGui (windowName) = ImGuiRunner.EnsureRunningWith(windowName, fun _ -> ())
+let setGuiBuilder (newGui: ImGuiBuilder) = ImGuiRunner.UpdateBuilder(newGui)
+let startOrUpdateGuiWith windowName initialGuiBuilder = ImGuiRunner.EnsureRunningWith(windowName, initialGuiBuilder)
 let dispatchToGui (action: unit -> unit) = ImGuiRunner.Invoke(action)
 let isGuiRunning () = ImGuiRunner.IsRunning
 let closeGui () = ImGuiRunner.Close()
