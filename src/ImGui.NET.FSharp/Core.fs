@@ -10,8 +10,7 @@ open Veldrid.StartupUtilities
 
 type IGuiRunner = 
     inherit IDisposable
-    abstract Close: unit -> unit
-    abstract UpdateBuilder: ImGuiBuilder -> unit
+    abstract Invoke: (unit -> unit) -> unit
 
 and ImGuiBuilder = unit -> unit
 
@@ -81,6 +80,23 @@ type private ImGuiRunner() =
                 gd.SubmitCommands(cl)
                 gd.SwapBuffers(gd.MainSwapchain)
 
+    member private x.ScheduleAction(action) = 
+        actionQueue.Enqueue(action)
+
+    member private x.UpdateBuilder(builder) = 
+        x.ScheduleAction(fun () -> guiBuilder <- builder)
+
+    member private x.Close() = 
+        if started && not disposing then
+            disposing <- true
+            if window.Exists then window.Close()
+            gd.WaitForIdle()
+            imguiRenderer.Dispose()
+            cl.Dispose()
+            gd.Dispose()
+
+        started <- false
+
     static member Start(windowName, guiBuilder:ImGuiBuilder) = 
         if not running then
             instance <- new ImGuiRunner()
@@ -95,35 +111,17 @@ type private ImGuiRunner() =
             
         instance :> IGuiRunner
 
-    static member UpdateBuilder(builder) = 
-        instance.UpdateBuilder(builder)
-
-    static member Close() = 
-        instance.Close()
-
-    member private x.ScheduleAction(action) = 
-        actionQueue.Enqueue(action)
-
-    member private x.UpdateBuilder(builder) = 
-        guiBuilder <- builder
-
-    member private x.Close() = window.Close()
+    static member UpdateBuilder(builder) = instance.UpdateBuilder(builder)
+    static member Close() = if running then instance.Close()
+    static member Invoke(action) = instance.ScheduleAction(action)    
+    static member IsRunning = running
 
     interface IGuiRunner with 
-        member _.Close() = window.Close()
-        member x.UpdateBuilder(builder) = x.ScheduleAction(fun () -> x.UpdateBuilder(builder))
-
-        member _.Dispose() = 
-            if started && not disposing then
-                disposing <- true
-                if window.Exists then window.Close()
-                gd.WaitForIdle()
-                imguiRenderer.Dispose()
-                cl.Dispose()
-                gd.Dispose()
-
-            started <- false
+        member x.Invoke(action) = x.ScheduleAction(action)
+        member x.Dispose() = x.Close()
 
 let startGui (windowName, guiBuilder) = ImGuiRunner.Start(windowName, guiBuilder)
 let updateGui (newGui: ImGuiBuilder) = ImGuiRunner.UpdateBuilder(newGui)
+let dispatchToGui (action: unit -> unit) = ImGuiRunner.Invoke(action)
+let isGuiRunning () = ImGuiRunner.IsRunning
 let closeGui () = ImGuiRunner.Close()
