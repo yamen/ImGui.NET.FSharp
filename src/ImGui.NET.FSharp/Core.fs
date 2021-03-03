@@ -74,6 +74,10 @@ type private ImGuiRunner() =
                 gd.SubmitCommands(cl)
                 gd.SwapBuffers(gd.MainSwapchain)
 
+    member private x.Resize(width, height) = 
+        window.Width <- width
+        window.Height <- height
+
     member private x.ScheduleAction(action) = 
         actionQueue.Enqueue(action)
 
@@ -109,6 +113,7 @@ type private ImGuiRunner() =
 
     static member UpdateBuilder(builder) = instance.UpdateBuilder(builder)
     static member Close() = if running then instance.Close()
+    static member Resize(width, height) = if running then instance.Resize(width, height)
     static member Invoke(action) = instance.ScheduleAction(action)    
     static member IsRunning = running
 
@@ -120,5 +125,6 @@ let startGui (windowName) = ImGuiRunner.EnsureRunningWith(windowName, fun _ -> (
 let setGuiBuilder (newGui: ImGuiBuilder) = ImGuiRunner.UpdateBuilder(newGui)
 let startOrUpdateGuiWith windowName initialGuiBuilder = ImGuiRunner.EnsureRunningWith(windowName, initialGuiBuilder)
 let dispatchToGui (action: unit -> unit) = ImGuiRunner.Invoke(action)
+let resizeGui (width, height) = ImGuiRunner.Resize(width, height)
 let isGuiRunning () = ImGuiRunner.IsRunning
 let closeGui () = ImGuiRunner.Close()

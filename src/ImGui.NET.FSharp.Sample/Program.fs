@@ -11,7 +11,7 @@ let main _ =
     
     let rec startup() = 
         Gui.window "Splash" [ 
-            fun g -> 
+            fun _ -> 
                 Styles.setGreenColorScheme()
                 setGuiBuilder page1
         ]()
