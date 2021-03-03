@@ -6,7 +6,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="Script.fsx" />
+    <None Include="ElmishMultipage.fsx" />
+    <None Include="ElmishSimple.fsx" />
+    <None Include="SimpleHotReload.fsx" />
     <Compile Include="Program.fs" />
   </ItemGroup>
 
